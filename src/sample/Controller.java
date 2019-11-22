@@ -6,8 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import org.cloudbus.cloudsim.Vm;
 
 import java.net.URL;
@@ -17,10 +16,31 @@ public class Controller implements Initializable {
    /**************************************************************************
     ********************** GRAPHICAL COMPONENTS ******************************
     **************************************************************************/
-
+   //users
    @FXML private Button deleteUser;
    @FXML private Button addUser;
    @FXML private ListView<String> listOfUsers;
+
+   //create hosts
+   @FXML private Spinner numberOfHosts;
+   @FXML private Spinner hostMips;
+   @FXML private ChoiceBox hostNumberOfCores;
+   @FXML private Spinner hostRAM;
+   @FXML private Spinner hostStorage;
+   @FXML private Spinner hostBW;
+   @FXML private ChoiceBox hostSchedulingPolicy;
+
+
+   //Datacenter Characteristics
+   @FXML private ChoiceBox DcArch;
+   @FXML private TextField DcOS;
+   @FXML private ChoiceBox DcVmm;
+   @FXML private TextField timeZone;
+   @FXML private TextField DcCost;
+   @FXML private TextField DcCostPerRAM;
+   @FXML private TextField DcCostPerStorage;
+   @FXML private TextField DcCostPerBandwidth;
+   @FXML private Button btnCreateDc;
 
 
 
@@ -33,10 +53,14 @@ public class Controller implements Initializable {
 
 
 
-/***************************************************************************
- ********************************* VARIABLES ********************************
- ***************************************************************************/
-int numberOfUsers=0, userID=0;
+   /***************************************************************************
+    ********************************* VARIABLES ********************************
+    ***************************************************************************/
+
+
+
+
+   int numberOfUsers=0, userID=0;
    final ObservableList<String> listItems= FXCollections.observableArrayList();
 
 
@@ -44,6 +68,20 @@ int numberOfUsers=0, userID=0;
    /***************************************************************************
     ************************ CLOUDSIM VARIABLES *******************************
     ***************************************************************************/
+
+   int hostID=0;
+   int hMips= (int) hostMips.getValue();
+   int hRAM= (int) hostRAM.getValue();
+   long hStorage= (long) hostStorage.getValue();
+   int hBW= (int) hostBW.getValue();
+
+
+
+
+
+
+
+
 
 
 
