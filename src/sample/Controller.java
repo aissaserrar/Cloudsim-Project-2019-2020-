@@ -1,13 +1,10 @@
 package sample;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import org.cloudbus.cloudsim.Vm;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -22,19 +19,19 @@ public class Controller implements Initializable {
    @FXML private ListView<String> listOfUsers;
 
    //create hosts
-   @FXML private Spinner numberOfHosts;
-   @FXML private Spinner hostMips;
-   @FXML private ChoiceBox hostNumberOfCores;
-   @FXML private Spinner hostRAM;
-   @FXML private Spinner hostStorage;
-   @FXML private Spinner hostBW;
-   @FXML private ChoiceBox hostSchedulingPolicy;
+   @FXML private Spinner<Integer> numberOfHosts;
+   @FXML private Spinner<Integer> hostMips;
+   @FXML private ChoiceBox<String> hostNumberOfCores;
+   @FXML private Spinner<Integer> hostRAM;
+   @FXML private Spinner<Long> hostStorage;
+   @FXML private Spinner<Integer> hostBW;
+   @FXML private ChoiceBox<String> hostSchedulingPolicy;
 
 
    //Datacenter Characteristics
-   @FXML private ChoiceBox DcArch;
+   @FXML private ChoiceBox<String> DcArch;
    @FXML private TextField DcOS;
-   @FXML private ChoiceBox DcVmm;
+   @FXML private ChoiceBox<String> DcVmm;
    @FXML private TextField timeZone;
    @FXML private TextField DcCost;
    @FXML private TextField DcCostPerRAM;
@@ -62,6 +59,12 @@ public class Controller implements Initializable {
 
    int numberOfUsers=0, userID=0;
    final ObservableList<String> listItems= FXCollections.observableArrayList();
+   final ObservableList<String> CPUCoresList= FXCollections.observableArrayList("Dual-core", "Quad-core", "Octa-core");
+   final ObservableList<String> schedulingPoliciesList= FXCollections.observableArrayList("Time shared", "Space shared");
+   final ObservableList<String> archList= FXCollections.observableArrayList("X86", "x64");
+   final ObservableList<String> dcVmmList= FXCollections.observableArrayList("Xen");
+
+
 
 
 
@@ -69,11 +72,14 @@ public class Controller implements Initializable {
     ************************ CLOUDSIM VARIABLES *******************************
     ***************************************************************************/
 
+   /*
    int hostID=0;
-   int hMips= (int) hostMips.getValue();
-   int hRAM= (int) hostRAM.getValue();
-   long hStorage= (long) hostStorage.getValue();
-   int hBW= (int) hostBW.getValue();
+   int hMips= hostMips.getValue();
+   int hRAM= hostRAM.getValue();
+   long hStorage= hostStorage.getValue();
+   int hBW= hostBW.getValue();
+
+    */
 
 
 
@@ -111,9 +117,9 @@ public class Controller implements Initializable {
 
       listOfUsers.setItems(listItems);
       deleteUser.setDisable(true);
-     // createDatacenterArea.setDisable(false);
 
       //disable other section if there is no user
+      /*
       listOfUsers.focusedProperty().addListener(new ChangeListener<Boolean>() {
          public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
             if (listOfUsers.isFocused() && numberOfUsers!=0) {
@@ -121,6 +127,40 @@ public class Controller implements Initializable {
             }else deleteUser.setDisable(true);
          }
       });
+
+      */
+
+      hostNumberOfCores.setItems(CPUCoresList);
+      hostSchedulingPolicy.setItems(schedulingPoliciesList);
+      DcArch.setItems(archList);
+      DcVmm.setItems(dcVmmList);
+
+
+      numberOfHosts.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0,100,1));
+      numberOfHosts.setEditable(true);
+
+      hostMips.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1000,100000,1000,1000));
+      hostMips.setEditable(true);
+
+      hostRAM.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(256,10240,1024,256));
+      hostRAM.setEditable(true);
+
+      hostStorage.setValueFactory(new SpinnerValueFactory<Long>() {
+
+         @Override
+         public void decrement(int steps) {
+            steps-=1000;
+         }
+
+         @Override
+         public void increment(int steps) {
+            steps+=1000;
+         }
+      });
+
+
+
+
 
    }
 }
