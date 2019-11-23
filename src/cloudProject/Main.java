@@ -13,6 +13,7 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("/cloudProject/mainwindow.fxml"));
         primaryStage.setTitle("Cloud Project");
         primaryStage.setScene(new Scene(root, 1400, 750));
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 
