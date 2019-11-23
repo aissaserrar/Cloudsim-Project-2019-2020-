@@ -1,15 +1,28 @@
-package sample;
+package cloudProject;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import org.cloudbus.cloudsim.Host;
+import org.cloudbus.cloudsim.Pe;
+import org.cloudbus.cloudsim.VmSchedulerSpaceShared;
+import org.cloudbus.cloudsim.VmSchedulerTimeShared;
+import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
+import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
+import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
+
+
    /**************************************************************************
     ********************** GRAPHICAL COMPONENTS ******************************
     **************************************************************************/
@@ -37,7 +50,12 @@ public class Controller implements Initializable {
    @FXML private TextField DcCostPerRAM;
    @FXML private TextField DcCostPerStorage;
    @FXML private TextField DcCostPerBandwidth;
+
+   //create datacenter button
    @FXML private Button btnCreateDc;
+
+
+
 
 
 
@@ -49,15 +67,12 @@ public class Controller implements Initializable {
 
 
 
-
    /***************************************************************************
     ********************************* VARIABLES ********************************
     ***************************************************************************/
 
 
-
-
-   int numberOfUsers=0, userID=0;
+   private int numberOfUsers=0, userID=0;
    final ObservableList<String> listItems= FXCollections.observableArrayList();
    final ObservableList<String> CPUCoresList= FXCollections.observableArrayList("Dual-core", "Quad-core", "Octa-core");
    final ObservableList<String> schedulingPoliciesList= FXCollections.observableArrayList("Time shared", "Space shared");
@@ -72,14 +87,9 @@ public class Controller implements Initializable {
     ************************ CLOUDSIM VARIABLES *******************************
     ***************************************************************************/
 
-   /*
-   int hostID=0;
-   int hMips= hostMips.getValue();
-   int hRAM= hostRAM.getValue();
-   long hStorage= hostStorage.getValue();
-   int hBW= hostBW.getValue();
 
-    */
+   List<Pe> peList= new ArrayList<Pe>();
+   List<Host> hostList = new ArrayList<Host>();
 
 
 
@@ -119,7 +129,6 @@ public class Controller implements Initializable {
       deleteUser.setDisable(true);
 
       //disable other section if there is no user
-      /*
       listOfUsers.focusedProperty().addListener(new ChangeListener<Boolean>() {
          public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
             if (listOfUsers.isFocused() && numberOfUsers!=0) {
@@ -128,12 +137,16 @@ public class Controller implements Initializable {
          }
       });
 
-      */
+
 
       hostNumberOfCores.setItems(CPUCoresList);
+      hostNumberOfCores.setValue(CPUCoresList.get(0));
       hostSchedulingPolicy.setItems(schedulingPoliciesList);
+      hostSchedulingPolicy.setValue(schedulingPoliciesList.get(0));
       DcArch.setItems(archList);
+      DcArch.setValue(archList.get(0));
       DcVmm.setItems(dcVmmList);
+      DcVmm.setValue(dcVmmList.get(0));
 
 
       numberOfHosts.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0,100,1));
@@ -145,17 +158,74 @@ public class Controller implements Initializable {
       hostRAM.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(256,10240,1024,256));
       hostRAM.setEditable(true);
 
-      hostStorage.setValueFactory(new SpinnerValueFactory<Long>() {
+      hostBW.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10000,1000000,10000,1000));
+      hostBW.setEditable(true);
 
-         @Override
-         public void decrement(int steps) {
-            steps-=1000;
+      hostStorage.setEditable(true);
+
+      btnCreateDc.setDisable(false);
+
+      //creating datacenter
+      btnCreateDc.setOnAction(e -> {
+
+         int nbrOfHosts= numberOfHosts.getValue();
+         int hMips= hostMips.getValue();
+         int hRam=hostRAM.getValue();
+         long hStorage=hostStorage.getValue();
+         int hBW=hostBW.getValue();
+
+         String hpesNumber=hostNumberOfCores.getValue();
+         String hschedulingPolicy=hostSchedulingPolicy.getValue();
+
+         switch (hpesNumber){
+            case "Dual-core":
+               for (int i = 0; i <2 ; i++) {
+                  peList.add(new Pe(i,new PeProvisionerSimple(hMips)));
+               }
+               break;
+            case "Quad-core":
+               for (int i = 0; i <4 ; i++) {
+                  peList.add(new Pe(i,new PeProvisionerSimple(hMips)));
+               }
+               break;
+            case "Octa-core" :
+               for (int i = 0; i <8 ; i++) {
+                  peList.add(new Pe(i,new PeProvisionerSimple(hMips)));
+               }
+               break;
          }
 
-         @Override
-         public void increment(int steps) {
-            steps+=1000;
+         switch (hschedulingPolicy){
+            case "Time shared":
+               for (int i = 0; i <nbrOfHosts ; i++) {
+                  hostList.add(new Host(
+                        i,
+                        new RamProvisionerSimple(hRam),
+                        new BwProvisionerSimple(hBW),
+                        hStorage,
+                        peList,
+                        new VmSchedulerTimeShared(peList)
+                  ));
+               }
+               break;
+            case "Space shared":
+               for (int i = 0; i <nbrOfHosts ; i++) {
+                  hostList.add(new Host(
+                        i,
+                        new RamProvisionerSimple(hRam),
+                        new BwProvisionerSimple(hBW),
+                        hStorage,
+                        peList,
+                        new VmSchedulerSpaceShared(peList)
+                  ));
+               }
+               break;
          }
+
+         System.out.println("Hosts created successfully");
+
+
+
       });
 
 
