@@ -23,6 +23,16 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
 
 
+   private static int dcID;
+   private static String sysArch;
+   private static String OS;
+   private static String vmm;
+   private static Double timeZone;
+   // Double timeZone=10.0;
+   private static Double cost;
+   private static Double costPerRAM;
+   private static Double costPerStorage;
+   private static Double costPerBW;
    /**************************************************************************
     ********************** GRAPHICAL COMPONENTS ******************************
     **************************************************************************/
@@ -74,7 +84,7 @@ public class Controller implements Initializable {
     ***************************************************************************/
 
 
-   private int numberOfUsers=0, userID=0,dcID=0, hostID=0;
+   private static int numberOfUsers=0, userID=0, hostID=0;
 
    final ObservableList<String> listItems= FXCollections.observableArrayList();
    final ObservableList<String> CPUCoresList= FXCollections.observableArrayList("Dual-core", "Quad-core", "Octa-core");
@@ -91,8 +101,8 @@ public class Controller implements Initializable {
     ***************************************************************************/
 
 
-   List<Pe> peList= new ArrayList<Pe>();
-   List<Host> hostList = new ArrayList<Host>();
+   private static List<Pe> peList= new ArrayList<Pe>();
+   private static List<Host> hostList = new ArrayList<Host>();
 
 
 
@@ -184,36 +194,30 @@ public class Controller implements Initializable {
    }
 
 
-   public Datacenter createDatacenter(){
+   private static Datacenter createDatacenter(String name, String sysArch, String OS, String vmm, Double timeZone,
+                                       Double cost, Double costPerRAM, Double costPerStorage, Double costPerBW, List<Host> hostList, LinkedList<Storage> storageList){
+
 
       //create datacenter
-      String dcName= "Datacenter"+dcID;
-      String sysArch= inputDcArch.getValue();
-      String OS= inputDcOS.getText();
-      String vmm= inputDcVmm.getValue();
-      Double timeZone=Double.parseDouble(inputTimeZone.getText());
-     // Double timeZone=10.0;
-      Double cost=inputDcCost.getValue();
-      Double costPerRAM=inputDcCostPerRAM.getValue();
-      Double costPerStorage=inputDcCostPerStorage.getValue();
-      Double costPerBW=inputDcCostPerBandwidth.getValue();
-      LinkedList<Storage> storageList = new LinkedList<Storage>();
-
 
       DatacenterCharacteristics datacenterCharacteristics= new DatacenterCharacteristics(sysArch,OS,vmm,hostList,timeZone,cost,costPerRAM,costPerStorage, costPerBW);
       Datacenter datacenter=null;
       System.out.println("characteristics created");
-      System.out.println(dcName);
+      System.out.println(name);
       System.out.println(hostList.size());
       System.out.println(storageList.size());
       System.out.println(datacenterCharacteristics.getVmm());
       try {
-         datacenter= new Datacenter(dcName,datacenterCharacteristics,new VmAllocationPolicySimple(hostList), storageList,0);
+         datacenter= new Datacenter(name,datacenterCharacteristics,new VmAllocationPolicySimple(hostList), storageList,0);
       } catch (Exception ex) {
          ex.printStackTrace();
       }
       dcID++;
       return datacenter;
+
+
+
+
    }
 
 
@@ -315,31 +319,39 @@ public class Controller implements Initializable {
       });
 
 
+
       //creating datacenter
       btnCreateDc.setOnAction(e -> {
          System.out.println("******************CREATING DATACENTER*******************");
+          String dcName= "Datacenter"+dcID;
+          sysArch= inputDcArch.getValue();
+          OS= inputDcOS.getText();
+          vmm= inputDcVmm.getValue();
+          timeZone=Double.parseDouble(inputTimeZone.getText());
+         // Double timeZone=10.0;
+          cost=inputDcCost.getValue();
+          costPerRAM=inputDcCostPerRAM.getValue();
+          costPerStorage=inputDcCostPerStorage.getValue();
+          costPerBW=inputDcCostPerBandwidth.getValue();
+         LinkedList<Storage> storageList = new LinkedList<Storage>();
 
 
-         Datacenter datacenter=createDatacenter();
+         Datacenter datacenter=createDatacenter(dcName,sysArch,OS,vmm,timeZone,cost,costPerRAM,costPerStorage,costPerBW,hostList,storageList);
 
          textShowNumberOfHosts.setText("0 host created");
          textShowNumberOfHosts.setFill(Color.RED);
          hostList.clear();
-         if (hostList.size()==0){
-            btnCreateDc.setDisable(true);
-            inputDcArch.setDisable(true);
-            inputDcOS.setDisable(true);
-            inputDcVmm.setDisable(true);
-            inputTimeZone.setDisable(true);
-            inputDcCost.setDisable(true);
-            inputDcCostPerRAM.setDisable(true);
-            inputDcCostPerStorage.setDisable(true);
-            inputDcCostPerBandwidth.setDisable(true);
-         }
+
+         btnCreateDc.setDisable(true);
+         inputDcArch.setDisable(true);
+         inputDcOS.setDisable(true);
+         inputDcVmm.setDisable(true);
+         inputTimeZone.setDisable(true);
+         inputDcCost.setDisable(true);
+         inputDcCostPerRAM.setDisable(true);
+         inputDcCostPerStorage.setDisable(true);
+         inputDcCostPerBandwidth.setDisable(true);
       });
-
-
-
 
 
    }
